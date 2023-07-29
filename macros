@@ -1,0 +1,21 @@
+Sub ExtractHL()
+  Dim HL As Hyperlink
+  Dim OverwriteAll As Boolean
+
+  OverwriteAll = False
+
+  For Each HL In ActiveSheet.Hyperlinks
+
+    If Not OverwriteAll Then
+        If HL.Range.Offset(0, 0).Value <> "" Then
+            If MsgBox("One or more of the target cells is not empty. Do you want to overwrite all cells?", vbOKCancel, "Target cells are not empty") = vbCancel Then
+                Exit For
+            Else
+                OverwriteAll = True
+            End If
+        End If
+    End If
+    HL.Range.Offset(0, 0).Value = HL.Address
+  Next
+
+End Sub
