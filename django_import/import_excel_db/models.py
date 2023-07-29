@@ -3,10 +3,12 @@ from django.db import models
 
 class Boards(models.Model):
     in_code = models.CharField(
-        max_length=50,
+        max_length=100,
     )
     city = models.ForeignKey('Cities', on_delete=models.CASCADE)
-    surface = models.ForeignKey('Surfaces', on_delete=models.CASCADE)
+    surface = models.ForeignKey('Surfaces',
+                                related_name='boards',
+                                on_delete=models.CASCADE)
     light = models.CharField(max_length=20)
     side = models.CharField(max_length=20)
     address = models.CharField(max_length=200, null=True)
@@ -17,7 +19,7 @@ class Boards(models.Model):
     digital = models.PositiveIntegerField(null=True, blank=True)
     grp = models.FloatField(null=True, blank=True)
     ots = models.FloatField(null=True, blank=True)
-    code_espar = models.CharField(max_length=10, null=True, blank=True)
+    code_espar = models.CharField(max_length=30, null=True, blank=True)
     sales_july = models.CharField(max_length=400, null=True, blank=True)
     sales_august = models.CharField(max_length=400, null=True, blank=True)
     sales_september = models.CharField(max_length=400, null=True, blank=True)
@@ -27,8 +29,7 @@ class Boards(models.Model):
     material = models.ForeignKey(
         'Materials',
         on_delete=models.SET_NULL,
-        null=True,
-        blank=True
+        null=True, blank=True,
     )
     products = models.CharField(max_length=100, null=True, blank=True)
     district = models.CharField(max_length=100, null=True, blank=True)
@@ -39,13 +40,15 @@ class Boards(models.Model):
     description = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return 'г.%s, %s, сторона: %s' % (self.city, self.address, self.side)
+        return f'{self.city}, {self.address}, {self.side}'
 
     class Meta:
-        verbose_name = 'Рекламный щит'
-        verbose_name_plural = 'Рекламные щиты'
-        models.UniqueConstraint(fields=['in_code', 'surface'],
-                                name='code_surface')
+        verbose_name = 'Board'
+        verbose_name_plural = 'Boards'
+        constraints = [
+            models.UniqueConstraint(fields=['in_code', 'surface'],
+                                    name='code_surface')
+        ]
 
 
 class Cities(models.Model):
@@ -54,8 +57,8 @@ class Cities(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Город'
-        verbose_name_plural = 'Города'
+        verbose_name = 'City'
+        verbose_name_plural = 'Cities'
 
     def __str__(self) -> str:
         return self.name
@@ -67,8 +70,8 @@ class Surfaces(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Поверхность'
-        verbose_name_plural = 'Поверхности'
+        verbose_name = 'Surface'
+        verbose_name_plural = 'Surfaces'
 
     def __str__(self) -> str:
         return self.type
@@ -76,11 +79,14 @@ class Surfaces(models.Model):
 
 class Materials(models.Model):
     description = models.CharField(
-        max_length=50,
+        max_length=200,
         null=True,
         blank=True
     )
 
     class Meta:
-        verbose_name = 'Материал'
-        verbose_name_plural = 'Материалы'
+        verbose_name = 'Material'
+        verbose_name_plural = 'Materials'
+
+    def __str__(self) -> str:
+        return self.description or ''
